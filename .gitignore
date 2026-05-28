@@ -1,0 +1,54 @@
+# Go
+bin/
+*.o
+*.a
+*.so
+*.out
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies (go mod)
+vendor/
+
+# Generated protobuf code
+pkg/gen/
+
+# Build artifacts
+*.exe
+*.dll
+*.dylib
+*.so
+*.su
+*.gch
+*.dSYM/
+
+# Testing
+*.test
+*.cover
+.coverage/
+
+# Docker volumes
+postgres_data/
+redis_data/
+nats_data/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak

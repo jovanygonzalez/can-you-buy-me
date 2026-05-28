@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package auction.v1;
+
+option go_package = "github.com/can-you-buy-me/pkg/gen/auction/v1";
+
+service AuctionService {
+  rpc GetAuction(GetAuctionRequest) returns (Auction);
+  rpc ListAuctions(ListAuctionsRequest) returns (ListAuctionsResponse);
+  rpc PlaceBid(PlaceBidRequest) returns (PlaceBidResponse);
+}
+
+message GetAuctionRequest {
+  int32 auction_id = 1;
+}
+
+message ListAuctionsRequest {
+  string status = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListAuctionsResponse {
+  repeated Auction auctions = 1;
+  int32 total = 2;
+}
+
+message Auction {
+  int32 id = 1;
+  string title = 2;
+  string subtitle = 3;
+  string description = 4;
+  string category = 5;
+  double base_price = 6;
+  double current_highest_bid = 7;
+  repeated string image_urls = 8;
+  string thumbnail_url = 9;
+  int64 scheduled_at_unix = 10;
+  int64 started_at_unix = 11;
+  int64 ended_at_unix = 12;
+  string status = 13;
+  int32 winner_id = 14;
+  int32 highest_bidder_id = 15;
+  string sku = 16;
+  string condition = 17;
+}
+
+message PlaceBidRequest {
+  int32 auction_id = 1;
+  double bid_amount = 2;
+}
+
+message PlaceBidResponse {
+  bool success = 1;
+  string message = 2;
+  int64 bid_id = 3;
+}

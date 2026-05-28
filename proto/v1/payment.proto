@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/can-you-buy-me/pkg/gen/payment/v1";
+
+service PaymentService {
+  rpc InitializeStripePayment(InitializeStripePaymentRequest) returns (InitializeStripePaymentResponse);
+}
+
+message InitializeStripePaymentRequest {
+  // user_id viene del contexto JWT - no necesita ser enviado en la request
+}
+
+message InitializeStripePaymentResponse {
+  string client_secret      = 1;  // SetupIntent.ClientSecret para Flutter/Stripe.js
+  string stripe_customer_id = 2;  // Customer ID en Stripe (para referencia del cliente)
+  string message            = 3;  // Mensaje de estado
+}

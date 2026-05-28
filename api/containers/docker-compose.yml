@@ -1,0 +1,74 @@
+services:
+  # PostgreSQL - Base de datos principal
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auction_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: auction_db
+    ports:
+      - "5435:5432"
+    volumes:
+      # PostgreSQL 18 usa PGDATA versionado (/var/lib/postgresql/18/docker);
+      # montar el padre /var/lib/postgresql para que los datos SÍ persistan.
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - auction_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d auction_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Cache de catálogo
+  redis:
+    image: redis:7-alpine
+    container_name: auction_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - auction_network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NATS JetStream - Message bus para pujas en tiempo real
+  nats:
+    image: nats:2-alpine
+    container_name: auction_nats
+    restart: always
+    ports:
+      - "4222:4222"      # NATS client port (backend Go)
+      - "8222:8222"      # NATS monitoring/metrics
+      - "8443:8443"      # NATS WebSocket (Flutter Web)
+    volumes:
+      - nats_data:/data
+      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
+    networks:
+      - auction_network
+    command: ["-c", "/etc/nats/nats-server.conf"]
+    healthcheck:
+      # nats:2-alpine no trae curl; usar wget (busybox) contra /healthz
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8222/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  auction_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  nats_data:
