@@ -31,7 +31,7 @@
             │ HealthService    ✓  │  └──────────────────────┘
             │ AuthService      ✓  │
             │ PaymentService   ✓  │
-            │ AuctionService TODO │
+            │ AuctionService   ✓  │
             └─────────┬───────────┘
                       │
          ┌────────────┼────────────┐
@@ -150,7 +150,7 @@ Implementado en: `internal/handlers/payment.go`
 en todos los RPC salvo los públicos (Register, Login, Health Ping/Check) e
 inyecta `user_id`/`email` en el `context`.
 
-#### AuctionService (TODO)
+#### AuctionService ✓ (implementado)
 ```protobuf
 service AuctionService {
   rpc GetAuction(GetAuctionRequest) returns (Auction);
@@ -159,10 +159,16 @@ service AuctionService {
 }
 ```
 
-A implementar:
-- Leer catálogo de Redis
-- Validar pujas contra PostgreSQL
-- Publicar en NATS JetStream
+Implementado en: `internal/handlers/auction.go`
+- **PlaceBid**: valida monto, confirma subasta abierta (`GetAuctionForBidding`),
+  y hace **compare-and-swap sobre el KV de NATS** (`auction.<id>.highest`) — solo
+  una puja gana cada nivel de precio, aún con N instancias de Go. Al ganar,
+  publica en `auction.<id>.bids`.
+- **GetAuction**: snapshot para quien entra tarde (catálogo de Postgres + precio
+  en vivo superpuesto desde el KV).
+- **ListAuctions**: catálogo desde Postgres (futuro: cache en Redis).
+- La persistencia de pujas en Postgres es **asíncrona** vía el audit consumer
+  (ver NATS JetStream), no en el camino caliente de la puja.
 
 ## Integración con Servicios Externos
 
@@ -180,13 +186,24 @@ Driver: `github.com/jackc/pgx/v5` (NO `lib/pq`). Queries generadas por sqlc en `
 // redisClient := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
 ```
 
-### NATS JetStream
+### NATS JetStream ✓ (implementado — motor de pujas)
 ```go
-// TODO: Implementar publicador para pujas en tiempo real
-// nc, _ := nats.Connect("nats://localhost:4222")
-// js, _ := nc.JetStream()
-// js.Publish("auctions.1.bids", bidData)
+// internal/messaging/nats.go (paquete moderno nats.go/jetstream)
+natsClient, _ := messaging.New(NATS_URL)
+natsClient.EnsureStream(ctx)  // AUCTION_BIDS: File, LimitsPolicy, DiscardOld, MaxAge 48h, dedup
+natsClient.EnsureKV(ctx)      // bucket auction_state (Memory) — precio máximo (CAS)
+natsClient.PublishBid(ctx, auctionID, data, msgID)  // → auction.<id>.bids
 ```
+- **Stream `AUCTION_BIDS`** (disco): subjects `auction.*.bids` + `auction.*.control`;
+  libro de auditoría inmutable.
+- **KV `auction_state`** (memoria): autoridad del precio máximo vía compare-and-swap.
+- **Audit consumer** (`internal/messaging/audit_consumer.go`): Pull Consumer durable
+  `audit-postgres` que drena las pujas a Postgres con `stream_seq` (orden cronológico
+  autoritativo), idempotente por `stream_seq UNIQUE`.
+- **Clientes (Flutter Web)**: se conectan por **NATS Core sobre WebSocket** (`:8443`,
+  ver `api/containers/nats-server.conf`), NO crean consumers JetStream — fan-out
+  ultraligero a miles de clientes. (Cliente Dart = siguiente fase.)
+- **Seguridad prod (pendiente)**: TLS + auth de subjects (clientes solo suscriben).
 
 ### Stripe ✓ (implementado — Setup Intents)
 ```go
@@ -209,7 +226,10 @@ internal/
   │   ├── health.go              # HealthService ✓
   │   ├── auth.go                # AuthService ✓ (Register/Login)
   │   ├── payment.go             # PaymentService ✓ (InitializeStripePayment)
-  │   └── auction.go (TODO)      # AuctionService
+  │   └── auction.go             # AuctionService ✓ (PlaceBid CAS + GetAuction)
+  ├── messaging/
+  │   ├── nats.go                # Cliente NATS, stream AUCTION_BIDS, KV, PublishBid
+  │   └── audit_consumer.go      # Pull Consumer durable → Postgres (async)
   ├── middleware/
   │   └── auth.go                # Interceptor JWT (rutas públicas + context)
   ├── security/
@@ -243,7 +263,8 @@ pkg/gen/                          # (Generado automáticamente por protoc)
 api/
   ├── containers/
   │   ├── Dockerfile             # PostgreSQL
-  │   └── docker-compose.yml     # Todos los servicios
+  │   ├── docker-compose.yml     # Todos los servicios
+  │   └── nats-server.conf       # NATS: WebSocket (:8443) + JetStream
   └── sql/
       ├── 001_init.sql           # Schema (fuente única — sqlc lo lee de aquí)
       └── 002_seed_data.sql      # Datos de ejemplo
@@ -262,11 +283,11 @@ main.go
 ├── github.com/golang-jwt/jwt/v5          (JWT HS256)
 ├── golang.org/x/crypto/bcrypt            (Hash de contraseñas)
 ├── github.com/stripe/stripe-go/v76       (Stripe Customer + SetupIntent + webhook)
+├── github.com/nats-io/nats.go (+jetstream)  (NATS: stream pujas, KV, audit consumer)
 └── (generado) db/sqlc                    (sqlc) + pkg/gen (protoc)
 
 (En go.mod, aún SIN usar en código — wiring pendiente)
-├── github.com/redis/go-redis/v9          (Redis — catálogo, TODO)
-└── github.com/nats-io/nats.go            (NATS JetStream — pujas, TODO)
+└── github.com/redis/go-redis/v9          (Redis — catálogo, TODO)
 ```
 
 ## Graceful Shutdown

@@ -24,7 +24,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis - Cache de catálogo
+  # Redis - Caché de lectura del catálogo (info del producto en subasta)
   redis:
     image: redis:7-alpine
     container_name: auction_redis
@@ -33,9 +33,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      # Config de caché (maxmemory + política LRU). Montada solo-lectura,
+      # igual que nats-server.conf.
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - auction_network
-    command: redis-server --appendonly yes
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

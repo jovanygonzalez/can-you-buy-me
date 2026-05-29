@@ -113,7 +113,7 @@ make build
 /proto/v1/
   ├── health.proto
   ├── auth.proto           # Auth (registro/login)
-  ├── auction.proto        # Auction (pujas) — TODO
+  ├── auction.proto        # Auction (pujas) ✓
   └── payment.proto        # Payment (Stripe Setup Intent)
 
 /pkg/gen/
@@ -138,10 +138,12 @@ make build
 - `InitializeStripePayment(InitializeStripePaymentRequest) -> InitializeStripePaymentResponse`
 - Webhook HTTP: `POST /webhooks/stripe` (setup_intent.succeeded)
 
-### AuctionService (TODO)
-- `GetAuction(GetAuctionRequest) -> Auction`
+### AuctionService ✓
+- `GetAuction(GetAuctionRequest) -> Auction` — snapshot (catálogo + precio en vivo del KV)
 - `ListAuctions(ListAuctionsRequest) -> ListAuctionsResponse`
-- `PlaceBid(PlaceBidRequest) -> PlaceBidResponse`
+- `PlaceBid(PlaceBidRequest) -> PlaceBidResponse` — valida con CAS sobre NATS KV y publica en `auction.<id>.bids`
+- Pujas → Postgres de forma asíncrona vía audit consumer (`internal/messaging`)
+- Tiempo real: clientes se suscriben por NATS Core sobre WebSocket (`:8443`)
 
 ## Probar el servidor
 
@@ -210,9 +212,13 @@ Flutter Web Client
 2. ✅ Conectar a PostgreSQL (pgx/v5 + sqlc, ping al arranque)
 3. ✅ Implementar AuthService (Registro/Login con bcrypt + JWT)
 4. ✅ Integración con Stripe Setup Intents (PaymentService + webhook)
-5. ⏳ Implementar AuctionService (Catálogo desde Redis)
-6. ⏳ Implementar PlaceBid (Publica a NATS JetStream)
-7. ⏳ WebSocket listener para NATS (broadcast de pujas)
+5. ✅ Implementar AuctionService (PlaceBid con CAS sobre NATS KV + GetAuction)
+6. ✅ PlaceBid publica en NATS JetStream + audit consumer → Postgres (async)
+7. ✅ Listener WebSocket de NATS habilitado (`:8443`, server-side)
+8. ⏳ Cliente Flutter/Dart de NATS sobre WebSocket (suscripción a pujas)
+9. ⏳ Endpoint admin `/admin/close-auction` (publica `auction.<id>.control`)
+10. ⏳ Catálogo cacheado en Redis (hoy se lee de Postgres)
+11. ⏳ Seguridad NATS prod (TLS + auth de subjects)
 
 ## Notas de Desarrollo
 
