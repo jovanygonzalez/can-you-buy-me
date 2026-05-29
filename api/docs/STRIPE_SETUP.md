@@ -82,7 +82,7 @@ if client.IsLiveMode() {
 ```bash
 # Terminal 1: Docker
 make docker-up
-make db-migrate
+make db-up
 
 # Terminal 2: Servidor
 make run
@@ -184,7 +184,7 @@ GetMode()                   // Retorna "live" o "test"
    └─ Si existe: configura stripe.Key
    ↓
 3. client.VerifyConnection()
-   ├─ Llama account.GetByID() en Stripe API
+   ├─ Llama account.Get() en Stripe API
    ├─ Si error: server detiene (exit 1)
    └─ Si éxito: retorna Account info
    ↓

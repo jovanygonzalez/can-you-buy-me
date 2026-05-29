@@ -207,7 +207,7 @@ natsClient.PublishBid(ctx, auctionID, data, msgID)  // → auction.<id>.bids
 
 ### Stripe ✓ (implementado — Setup Intents)
 ```go
-// internal/payment/stripe.go — verifica la API key al arranque (account.GetByID)
+// internal/payment/stripe.go — verifica la API key al arranque (account.Get)
 // PaymentService.InitializeStripePayment → Customer + SetupIntent (off_session)
 // internal/webhook/stripe.go → recibe setup_intent.succeeded vía webhook
 ```
@@ -260,14 +260,17 @@ pkg/gen/                          # (Generado automáticamente por protoc)
   ├── auction/v1/
   └── payment/v1/
 
+db/
+  ├── migrations/                # Migraciones goose (fuente del schema — sqlc las lee)
+  ├── seeds/                     # Datos de ejemplo (goose -no-versioning)
+  ├── queries/                   # queries fuente para sqlc
+  └── sqlc/                      # (generado)
+
 api/
-  ├── containers/
-  │   ├── Dockerfile             # PostgreSQL
-  │   ├── docker-compose.yml     # Todos los servicios
-  │   └── nats-server.conf       # NATS: WebSocket (:8443) + JetStream
-  └── sql/
-      ├── 001_init.sql           # Schema (fuente única — sqlc lo lee de aquí)
-      └── 002_seed_data.sql      # Datos de ejemplo
+  └── containers/
+      ├── Dockerfile             # PostgreSQL
+      ├── docker-compose.yml     # Todos los servicios
+      └── nats-server.conf       # NATS: WebSocket (:8443) + JetStream
 ```
 
 ## Stack de Dependencias

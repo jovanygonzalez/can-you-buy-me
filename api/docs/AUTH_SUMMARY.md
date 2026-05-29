@@ -216,7 +216,7 @@ github.com/improbable-eng/grpc-web - gRPC-Web sin Envoy
 5. **Ejecutar:**
    ```bash
    make docker-up
-   make db-migrate
+   make db-up
    make run
    ```
 

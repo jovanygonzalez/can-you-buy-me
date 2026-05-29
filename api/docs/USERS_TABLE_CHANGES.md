@@ -168,7 +168,7 @@ Si Stripe está down, el app sigue funcionando:
 Como indicaste, **todo está en desarrollo y no se ha corrido nada en DB**, así que:
 
 ### 1. Script está listo
-El archivo `api/sql/001_init.sql` ya contiene:
+El archivo `db/migrations/00001_initial_schema.sql` ya contiene:
 - ✅ Campo `has_active_payment_method`
 - ✅ Índice `idx_users_has_active_payment`
 - ✅ Comentarios explicativos
@@ -176,7 +176,7 @@ El archivo `api/sql/001_init.sql` ya contiene:
 ### 2. Cuando ejecutes primera vez
 ```bash
 make docker-up
-make db-migrate
+make db-up
 ```
 
 Se creará la tabla con todos los campos incluidos.
@@ -224,7 +224,7 @@ El usuario NO PUEDE PUJAR hasta que:
 
 ## Archivos Modificados
 
-- ✅ `api/sql/001_init.sql` - Tabla actualizada con nuevo campo e índice
+- ✅ `db/migrations/00001_initial_schema.sql` - Tabla actualizada con nuevo campo e índice
 - ✅ `db/queries/users.sql` - 3 nuevos queries para pago
 - ✅ `STRIPE_INTEGRATION.md` - Documentación de integración (nuevo)
 

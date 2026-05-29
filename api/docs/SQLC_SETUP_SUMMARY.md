@@ -61,7 +61,7 @@ make sqlc  # Genera código Go desde db/queries/*.sql
 ### 4. Levantar servicios
 ```bash
 make docker-up
-make db-migrate
+make db-up
 ```
 
 ### 5. Compilar y ejecutar

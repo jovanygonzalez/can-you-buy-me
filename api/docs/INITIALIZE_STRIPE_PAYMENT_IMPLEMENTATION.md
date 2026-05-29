@@ -66,7 +66,7 @@ make build      # No debe haber errores
 ```bash
 # Terminal 1: Services
 make docker-up
-make db-migrate
+make db-up
 
 # Terminal 2: Server
 make run

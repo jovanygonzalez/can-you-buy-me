@@ -80,7 +80,7 @@ main.go
    │   └─ Leer STRIPE_API_KEY
    │
    ├─→ VerifyConnection()
-   │   ├─ Llamar account.GetByID() a Stripe API
+   │   ├─ Llamar account.Get() a Stripe API
    │   ├─ Si error: log error y EXIT
    │   └─ Si éxito: retorna Account
    │

@@ -58,7 +58,7 @@ ls db/sqlc/*.go
 ```bash
 # Terminal 1: Docker
 make docker-up
-make db-migrate
+make db-up
 
 # Terminal 2: Servidor
 make run

@@ -61,7 +61,7 @@ make build
 make docker-up
 
 # Terminal 2: Aplicar migraciones de BD
-make db-migrate
+make db-up
 
 # Terminal 3: Cargar datos de ejemplo (opcional)
 make db-seed
@@ -107,6 +107,8 @@ make build
       └── stripe.go        # Handler HTTP /webhooks/stripe
 
 /db/
+  ├── migrations/          # Migraciones goose (versionadas)
+  ├── seeds/               # Datos de ejemplo (goose -no-versioning)
   ├── queries/             # *.sql fuente para sqlc
   └── sqlc/                # (generado por sqlc)
 
@@ -120,8 +122,7 @@ make build
   └── (generado automáticamente desde los .proto)
 
 /api/
-  ├── containers/          # Dockerfile y docker-compose
-  └── sql/                 # Schema (001_init) + seed (002)
+  └── containers/          # Dockerfile y docker-compose
 ```
 
 ## Servicios gRPC

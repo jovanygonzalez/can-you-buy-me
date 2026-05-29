@@ -20,11 +20,11 @@ Use in handlers/services
 ## Estructura de Carpetas
 
 ```
-api/sql/                   (SCHEMA + seed — fuente de verdad)
-├── 001_init.sql           (schema; sqlc lo lee + lo aplica db-migrate)
-└── 002_seed_data.sql      (datos de ejemplo)
-
 db/
+├── migrations/            (migraciones goose — fuente del schema; sqlc las lee)
+│   └── 00001_initial_schema.sql
+├── seeds/                 (datos de ejemplo; goose -no-versioning)
+│   └── 00001_seed_data.sql
 ├── queries/               (queries fuente para sqlc)
 │   ├── users.sql
 │   ├── auctions.sql
@@ -53,7 +53,7 @@ version: "2"
 sql:
   - engine: "postgresql"
     queries: "db/queries"
-    schema: "api/sql/001_init.sql"   # fuente única de schema (misma que aplica db-migrate)
+    schema: "db/migrations"   # fuente única de schema (misma que aplica db-up)
     gen:
       go:
         package: "db"
@@ -262,9 +262,9 @@ func main() {
 
 1. **Modificar schema:**
    ```bash
-   # Editar api/sql/001_init.sql
+   # Editar db/migrations/00001_initial_schema.sql
    # Aplicar cambios a la BD local
-   make db-migrate
+   make db-up
    ```
 
 2. **Escribir query:**
@@ -307,7 +307,7 @@ overrides:
 - Solución: Verificar que la BD tiene el schema actualizado
 
 ```bash
-psql postgresql://root:root@localhost:5435/auction_db -c "\dt"
+docker exec -it auction_postgres psql -U root -d auction_db -c "\dt"
 ```
 
 ### Error: "unrecognized mode"

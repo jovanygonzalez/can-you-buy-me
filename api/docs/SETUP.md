@@ -75,9 +75,9 @@ make sqlc
 
 Esto genera código en `db/sqlc/`.
 
-> **Fuente única de schema:** `sqlc` lee el schema de `api/sql/001_init.sql`
+> **Fuente única de schema:** `sqlc` lee el schema de `db/migrations/00001_initial_schema.sql`
 > (configurado en `sqlc.yaml`) y las queries de `db/queries/*.sql`. Es el
-> **mismo** archivo que aplica `make db-migrate` a PostgreSQL, así que el
+> **mismo** archivo que aplica `make db-up` a PostgreSQL, así que el
 > código generado y la BD real nunca divergen.
 
 **Nota:** Ambos pasos se ejecutan automáticamente con `make build`.
@@ -116,15 +116,15 @@ Debería mostrar 3 contenedores:
 ## Paso 7: Crear el Schema de Base de Datos
 
 ```bash
-make db-migrate
+make db-up
 
 # O manualmente:
-# psql postgresql://root:root@localhost:5435/auction_db -f api/sql/001_init.sql
+# docker exec -it auction_postgres psql -U root -d auction_db -f db/migrations/00001_initial_schema.sql
 ```
 
 Verificar:
 ```bash
-psql postgresql://root:root@localhost:5435/auction_db -c "\dt"
+docker exec -it auction_postgres psql -U root -d auction_db -c "\dt"
 # Debería listar las tablas: users, auctions, bids, audit_log, payments
 ```
 
@@ -134,12 +134,12 @@ psql postgresql://root:root@localhost:5435/auction_db -c "\dt"
 make db-seed
 
 # O manualmente:
-# psql postgresql://root:root@localhost:5435/auction_db -f api/sql/002_seed_data.sql
+# docker exec -it auction_postgres psql -U root -d auction_db -f db/seeds/00001_seed_data.sql
 ```
 
 Verificar:
 ```bash
-psql postgresql://root:root@localhost:5435/auction_db -c "SELECT id, title, base_price FROM auctions;"
+docker exec -it auction_postgres psql -U root -d auction_db -c "SELECT id, title, base_price FROM auctions;"
 ```
 
 ## Paso 9: Compilar el Servidor
@@ -200,7 +200,7 @@ grpcurl -plaintext -d '{}' localhost:50051 health.v1.HealthService/Ping
 make docker-down
 
 # O manualmente:
-# docker-compose -f api/containers/docker-compose.yml down
+# docker-compose -f containers/docker-compose.yml down
 ```
 
 ## Verificación Completa
