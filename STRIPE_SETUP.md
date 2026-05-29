@@ -98,7 +98,7 @@ INFO Stripe connection verified
   account_name: Tu Nombre
 INFO Database connection established
 INFO gRPC server listening port=50051
-INFO HTTP/gRPC-Web server listening port=8080
+INFO HTTP/gRPC-Web server listening port=8070
 ```
 
 ### 3.2 Sin Stripe (STRIPE_API_KEY no configurada)

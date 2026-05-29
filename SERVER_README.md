@@ -72,8 +72,8 @@ make run
 
 El servidor estará disponible en:
 - **gRPC:** `localhost:50051`
-- **gRPC-Web (HTTP):** `localhost:8080`
-- **Health Check:** `curl http://localhost:8080/health`
+- **gRPC-Web (HTTP):** `localhost:8070`
+- **Health Check:** `curl http://localhost:8070/health`
 
 ### Opción 2: Ejecutar el binario compilado
 
@@ -149,7 +149,7 @@ make build
 
 ### Con HTTP/Health Check
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8070/health
 ```
 
 ### Con grpcurl (herramienta gRPC)
@@ -165,7 +165,7 @@ grpcurl -plaintext localhost:50051 health.v1.HealthService/Ping
 ```
 
 ### Con Flutter Web (futuro)
-El cliente Flutter Web se conectará vía gRPC-Web a `http://localhost:8080`.
+El cliente Flutter Web se conectará vía gRPC-Web a `http://localhost:8070`.
 
 ## Variables de Entorno
 
@@ -178,7 +178,7 @@ cp .env.example .env
 
 ### Principales para desarrollo:
 - `GRPC_PORT=50051` - Puerto del servidor gRPC
-- `HTTP_PORT=8080` - Puerto del servidor HTTP (gRPC-Web)
+- `HTTP_PORT=8070` - Puerto del servidor HTTP (gRPC-Web)
 - `DB_HOST=localhost`
 - `DB_PORT=5435`
 - `REDIS_URL=redis://localhost:6379/0`
@@ -251,6 +251,6 @@ make docker-logs
 ```bash
 # Cambiar puertos en .env
 # O matar el proceso en el puerto:
-# Windows: netstat -ano | findstr :8080
-# Linux: lsof -i :8080
+# Windows: netstat -ano | findstr :8070
+# Linux: lsof -i :8070
 ```

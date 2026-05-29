@@ -14,7 +14,7 @@
                              ▼
         ┌────────────────────────────────────────┐
         │    HTTP Server (go/net http)           │
-        │    localhost:8080                      │
+        │    localhost:8070                      │
         ├────────────────────────────────────────┤
         │ /health                    (HTTP GET)  │
         │ /webhooks/stripe           (HTTP POST) │
@@ -83,7 +83,7 @@
 ## Componentes Principales
 
 ### 1. HTTP Server (go/net/http)
-- **Puerto:** 8080
+- **Puerto:** 8070
 - **Responsabilidades:**
   - Servir gRPC-Web (sin Envoy)
   - Health check endpoint (/health)
@@ -310,15 +310,15 @@ grpcurl -plaintext -d '{}' localhost:50051 health.v1.HealthService/Ping
 
 ### Health Endpoint HTTP
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8070/health
 ```
 
 ### Logs
 ```
 INFO Starting Can You Buy Me API Server...
-INFO Server configuration grpc_port=50051 http_port=8080
+INFO Server configuration grpc_port=50051 http_port=8070
 INFO gRPC server listening port=50051
-INFO HTTP/gRPC-Web server listening port=8080
+INFO HTTP/gRPC-Web server listening port=8070
 INFO Health check successful
 ```
 

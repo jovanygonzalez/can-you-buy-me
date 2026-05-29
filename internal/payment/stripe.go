@@ -34,7 +34,7 @@ func NewStripeClient() (*StripeClient, error) {
 // Retorna información de la cuenta si tiene éxito
 func (sc *StripeClient) VerifyConnection() (*stripe.Account, error) {
 	// Obtener información de la cuenta - esto valida la API key
-	acc, err := account.GetByID()
+	acc, err := account.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify Stripe connection: %w", err)
 	}
@@ -44,7 +44,7 @@ func (sc *StripeClient) VerifyConnection() (*stripe.Account, error) {
 
 // GetAccountInfo retorna información de la cuenta de Stripe
 func (sc *StripeClient) GetAccountInfo() (*stripe.Account, error) {
-	acc, err := account.GetByID()
+	acc, err := account.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get account info: %w", err)
 	}

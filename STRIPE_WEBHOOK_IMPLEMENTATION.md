@@ -45,7 +45,7 @@ if err != nil {
 ## 🏗️ Arquitectura
 
 ```
-HTTP Server (puerto 8080)
+HTTP Server (puerto 8070)
 ├─ /health                  ← health check simple
 ├─ /webhooks/stripe         ← NUEVO: recibe eventos de Stripe
 └─ /                        ← gRPC-Web (catch-all)
@@ -63,7 +63,7 @@ El mismo servidor HTTP que sirve gRPC-Web ahora también maneja webhooks. **No s
 
 ```bash
 # Terminal 1: Escuchar webhooks
-stripe listen --forward-to localhost:8080/webhooks/stripe
+stripe listen --forward-to localhost:8070/webhooks/stripe
 
 # Output:
 # Ready! Your webhook signing secret is whsec_test_4neq70d8bq3ej00gkc0jnwjf (^C to quit)
@@ -197,7 +197,7 @@ Después de que el webhook esté funcionando:
 
 ### Stripe CLI (Desarrollo Local)
 ```bash
-stripe listen --forward-to localhost:8080/webhooks/stripe
+stripe listen --forward-to localhost:8070/webhooks/stripe
 # whsec_test_...  (válido solo localmente)
 ```
 
@@ -246,9 +246,9 @@ if err := json.Unmarshal(event.Data.Raw, &setupIntent); err != nil {
 
 | Ruta | Puerto | Métodos | Manejador | Requisito |
 |------|--------|---------|-----------|-----------|
-| `/health` | 8080 | GET | HTTP simple | Siempre |
-| `/webhooks/stripe` | 8080 | POST | StripeWebhookHandler | STRIPE_WEBHOOK_SECRET |
-| `/` | 8080 | POST, [gRPC methods] | grpcWebHandler | Siempre (catch-all) |
+| `/health` | 8070 | GET | HTTP simple | Siempre |
+| `/webhooks/stripe` | 8070 | POST | StripeWebhookHandler | STRIPE_WEBHOOK_SECRET |
+| `/` | 8070 | POST, [gRPC methods] | grpcWebHandler | Siempre (catch-all) |
 
 ## 🎯 MVP Fase 1 (Actual)
 
@@ -277,7 +277,7 @@ make run
 # Debe mostrar: INFO Stripe webhook endpoint registered
 
 # 3. En otra terminal, escuchar webhooks
-stripe listen --forward-to localhost:8080/webhooks/stripe
+stripe listen --forward-to localhost:8070/webhooks/stripe
 
 # 4. Disparar evento
 stripe trigger setup_intent.succeeded

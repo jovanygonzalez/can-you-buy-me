@@ -20,7 +20,7 @@ type ServerConfig struct {
 func DefaultServerConfig() *ServerConfig {
 	return &ServerConfig{
 		GRPCPort:   "50051",
-		HTTPPort:   "8080",
+		HTTPPort:   "8070",
 		MaxMsgSize: 10 * 1024 * 1024, // 10 MiB
 	}
 }

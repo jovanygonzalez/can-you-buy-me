@@ -79,7 +79,7 @@ func main() {
 	// Configurar servidor gRPC
 	grpcConfig := &grpcpkg.ServerConfig{
 		GRPCPort:   getEnvOrDefault("GRPC_PORT", "50051"),
-		HTTPPort:   getEnvOrDefault("HTTP_PORT", "8080"),
+		HTTPPort:   getEnvOrDefault("HTTP_PORT", "8070"),
 		MaxMsgSize: 10 * 1024 * 1024, // 10 MiB
 	}
 

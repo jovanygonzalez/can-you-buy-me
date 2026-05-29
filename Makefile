@@ -1,91 +1,94 @@
-.PHONY: help proto build run clean test
+.PHONY: help proto build run clean test deps sqlc docker-up docker-down docker-logs db-migrate db-seed
+
+# Forzar sh como shell (en Windows lo provee Git for Windows / scoop).
+# Sin esto, make en Windows puede caer en cmd.exe y romper las recetas.
+SHELL := sh
+
+MODULE := github.com/can-you-buy-me
+PROTOC_FLAGS := --proto_path=proto/v1 --go_out=. --go_opt=module=$(MODULE) --go-grpc_out=. --go-grpc_opt=module=$(MODULE)
 
 help:
-	@echo "Can You Buy Me - Makefile Commands"
-	@echo ""
-	@echo "Commands:"
-	@echo "  make proto       - Generate Go code from .proto files"
-	@echo "  make build       - Build the server binary"
-	@echo "  make run         - Run the server locally"
-	@echo "  make test        - Run tests"
-	@echo "  make clean       - Clean build artifacts"
-	@echo "  make docker-up   - Start Docker containers (PostgreSQL, Redis, NATS)"
-	@echo "  make docker-down - Stop Docker containers"
+	@echo Can You Buy Me - Makefile Commands
+	@echo   make proto       - Generate Go code from .proto files
+	@echo   make sqlc        - Generate Go code from SQL queries
+	@echo   make build       - Build the server binary
+	@echo   make run         - Run the server locally
+	@echo   make test        - Run tests
+	@echo   make clean       - Clean build artifacts
+	@echo   make docker-up   - Start Docker containers PostgreSQL Redis NATS
+	@echo   make docker-down - Stop Docker containers
 
-# Generar código Go desde archivos .proto
+# Generar codigo Go desde archivos .proto
+# protoc con --go_opt=module crea pkg/gen/<svc>/v1 automaticamente
 proto:
-	@echo "Generating protobuf code..."
-	@mkdir -p pkg/gen/health/v1 pkg/gen/auth/v1 pkg/gen/auction/v1 pkg/gen/payment/v1
-	protoc --go_out=. --go-grpc_out=. proto/v1/health.proto
-	protoc --go_out=. --go-grpc_out=. proto/v1/auth.proto
-	protoc --go_out=. --go-grpc_out=. proto/v1/auction.proto
-	protoc --go_out=. --go-grpc_out=. proto/v1/payment.proto
-	@echo "✓ Protobuf code generated"
+	@echo Generating protobuf code...
+	protoc $(PROTOC_FLAGS) health.proto
+	protoc $(PROTOC_FLAGS) auth.proto
+	protoc $(PROTOC_FLAGS) auction.proto
+	protoc $(PROTOC_FLAGS) payment.proto
+	@echo Protobuf code generated
 
-# Generar código Go desde queries SQL (sqlc)
+# Generar codigo Go desde queries SQL (sqlc)
 sqlc:
-	@echo "Generating sqlc code..."
-	@command -v sqlc >/dev/null 2>&1 || (echo "sqlc not found. Install with: go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest" && exit 1)
+	@echo Generating sqlc code...
 	sqlc generate
-	@echo "✓ SQLC code generated"
+	@echo SQLC code generated
 
 # Descargar dependencias
 deps:
-	@echo "Downloading dependencies..."
+	@echo Downloading dependencies...
 	go mod download
 	go mod tidy
-	@echo "✓ Dependencies ready"
+	@echo Dependencies ready
 
 # Compilar el servidor
 build: proto sqlc
-	@echo "Building server..."
+	@echo Building server...
 	go build -o bin/server ./cmd/server/main.go
-	@echo "✓ Server built to bin/server"
+	@echo Server built to bin/server
 
 # Ejecutar el servidor
 run: proto
-	@echo "Running server..."
+	@echo Running server...
 	go run ./cmd/server/main.go
 
 # Ejecutar tests
 test:
-	@echo "Running tests..."
+	@echo Running tests...
 	go test -v ./...
 
 # Limpiar
 clean:
-	@echo "Cleaning..."
-	rm -rf bin/
-	rm -rf pkg/gen/
+	@echo Cleaning...
+	rm -rf bin
+	rm -rf pkg/gen
 	go clean
-	@echo "✓ Cleaned"
+	@echo Cleaned
 
 # Docker
 docker-up:
-	@echo "Starting Docker containers..."
+	@echo Starting Docker containers...
 	docker-compose -f api/containers/docker-compose.yml up -d
-	@echo "✓ Containers started"
-	@echo ""
-	@echo "Services:"
-	@echo "  PostgreSQL: localhost:5435 (user: root, password: root, db: auction_db)"
-	@echo "  Redis:      localhost:6379"
-	@echo "  NATS:       localhost:4222 (monitoring: http://localhost:8222)"
+	@echo Containers started
+	@echo   PostgreSQL: localhost:5435 user root password root db auction_db
+	@echo   Redis:      localhost:6379
+	@echo   NATS:       localhost:4222 monitoring http://localhost:8222
 
 docker-down:
-	@echo "Stopping Docker containers..."
+	@echo Stopping Docker containers...
 	docker-compose -f api/containers/docker-compose.yml down
-	@echo "✓ Containers stopped"
+	@echo Containers stopped
 
 docker-logs:
 	docker-compose -f api/containers/docker-compose.yml logs -f
 
 # Aplicar migraciones de base de datos
 db-migrate:
-	@echo "Applying database migrations..."
+	@echo Applying database migrations...
 	psql postgresql://root:root@localhost:5435/auction_db -f api/sql/001_init.sql
-	@echo "✓ Schema created"
+	@echo Schema created
 
 db-seed:
-	@echo "Seeding sample data..."
+	@echo Seeding sample data...
 	psql postgresql://root:root@localhost:5435/auction_db -f api/sql/002_seed_data.sql
-	@echo "✓ Sample data loaded"
+	@echo Sample data loaded

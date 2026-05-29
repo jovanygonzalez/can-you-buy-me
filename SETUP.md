@@ -163,9 +163,9 @@ make run
 Deberías ver:
 ```
 2024/XX/XX 12:XX:XX INFO Starting Can You Buy Me API Server...
-2024/XX/XX 12:XX:XX INFO Server configuration grpc_port=50051 http_port=8080
+2024/XX/XX 12:XX:XX INFO Server configuration grpc_port=50051 http_port=8070
 2024/XX/XX 12:XX:XX INFO gRPC server listening port=50051
-2024/XX/XX 12:XX:XX INFO HTTP/gRPC-Web server listening port=8080
+2024/XX/XX 12:XX:XX INFO HTTP/gRPC-Web server listening port=8070
 2024/XX/XX 12:XX:XX INFO Health check successful
 ```
 
@@ -175,7 +175,7 @@ En otra terminal:
 
 ### Health Check HTTP
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8070/health
 # Debe retornar: {"status":"ok"}
 ```
 
@@ -217,7 +217,7 @@ Checklist final:
 - [ ] Base de datos schema creado (`psql ... \dt`)
 - [ ] Servidor compilado (`make build`)
 - [ ] Servidor ejecutado (`make run`)
-- [ ] Health check responde (`curl http://localhost:8080/health`)
+- [ ] Health check responde (`curl http://localhost:8070/health`)
 
 ## Troubleshooting
 
@@ -255,7 +255,7 @@ docker logs auction_postgres  # Ver logs
 ```bash
 # El servidor no está corriendo
 # Terminal 1: make run
-# Terminal 2: curl http://localhost:8080/health
+# Terminal 2: curl http://localhost:8070/health
 ```
 
 ## Próximos Pasos

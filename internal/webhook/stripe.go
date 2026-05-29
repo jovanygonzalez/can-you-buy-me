@@ -139,7 +139,7 @@ func (h *StripeWebhookHandler) handleSetupIntentFailed(event stripe.Event) {
 	var errorMessage string
 	if setupIntent.LastSetupError != nil {
 		errorCode = setupIntent.LastSetupError.Code
-		errorMessage = setupIntent.LastSetupError.Message
+		errorMessage = setupIntent.LastSetupError.Msg
 	}
 
 	// Loggear el fallo

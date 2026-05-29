@@ -26,6 +26,9 @@ vendor/
 # Generated protobuf code
 pkg/gen/
 
+# Generated sqlc code (se regenera con `make sqlc`)
+db/sqlc/
+
 # Build artifacts
 *.exe
 *.dll

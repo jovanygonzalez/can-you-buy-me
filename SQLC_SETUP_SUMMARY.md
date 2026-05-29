@@ -30,7 +30,7 @@ Configuración completada para SQLC y PostgreSQL en el proyecto "Can You Buy Me"
 ```
 Frontend (Flutter Web)
          ↓ (gRPC-Web)
-    HTTP Server (port 8080)
+    HTTP Server (port 8070)
     gRPC Server (port 50051)
          ↓
     Handlers/Services

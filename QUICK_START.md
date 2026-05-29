@@ -67,7 +67,7 @@ make run
 # INFO Starting Can You Buy Me API Server...
 # INFO Database connection established
 # INFO gRPC server listening port=50051
-# INFO HTTP/gRPC-Web server listening port=8080
+# INFO HTTP/gRPC-Web server listening port=8070
 ```
 
 ### 7. Probar Register
