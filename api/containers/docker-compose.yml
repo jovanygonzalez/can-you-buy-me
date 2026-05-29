@@ -1,3 +1,7 @@
+# Nombre del proyecto Compose: agrupa los contenedores bajo "can-you-buy-me"
+# en Docker Desktop (por defecto tomaría el nombre de la carpeta: "containers").
+name: can-you-buy-me
+
 services:
   # PostgreSQL - Base de datos principal
   postgres:
