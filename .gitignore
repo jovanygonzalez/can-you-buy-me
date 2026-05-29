@@ -23,11 +23,11 @@ bin/
 # Dependencies (go mod)
 vendor/
 
-# Generated protobuf code
-pkg/gen/
+# Generated protobuf code (el backend vive en api/)
+api/pkg/gen/
 
 # Generated sqlc code (se regenera con `make sqlc`)
-db/sqlc/
+api/db/sqlc/
 
 # Build artifacts
 *.exe

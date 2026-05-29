@@ -5,7 +5,9 @@
 SHELL := sh
 
 MODULE := github.com/can-you-buy-me
-PROTOC_FLAGS := --proto_path=proto/v1 --go_out=. --go_opt=module=$(MODULE) --go-grpc_out=. --go-grpc_opt=module=$(MODULE)
+# proto/ vive en la raíz del monorepo (compartido con el futuro frontend Flutter).
+# Este Makefile corre desde api/, por eso ../proto/v1.
+PROTOC_FLAGS := --proto_path=../proto/v1 --go_out=. --go_opt=module=$(MODULE) --go-grpc_out=. --go-grpc_opt=module=$(MODULE)
 
 help:
 	@echo Can You Buy Me - Makefile Commands
@@ -68,7 +70,7 @@ clean:
 # Docker
 docker-up:
 	@echo Starting Docker containers...
-	docker-compose -f api/containers/docker-compose.yml up -d
+	docker-compose -f containers/docker-compose.yml up -d
 	@echo Containers started
 	@echo   PostgreSQL: localhost:5435 user root password root db auction_db
 	@echo   Redis:      localhost:6379
@@ -76,19 +78,19 @@ docker-up:
 
 docker-down:
 	@echo Stopping Docker containers...
-	docker-compose -f api/containers/docker-compose.yml down
+	docker-compose -f containers/docker-compose.yml down
 	@echo Containers stopped
 
 docker-logs:
-	docker-compose -f api/containers/docker-compose.yml logs -f
+	docker-compose -f containers/docker-compose.yml logs -f
 
 # Aplicar migraciones de base de datos
 db-migrate:
 	@echo Applying database migrations...
-	psql postgresql://root:root@localhost:5435/auction_db -f api/sql/001_init.sql
+	psql postgresql://root:root@localhost:5435/auction_db -f sql/001_init.sql
 	@echo Schema created
 
 db-seed:
 	@echo Seeding sample data...
-	psql postgresql://root:root@localhost:5435/auction_db -f api/sql/002_seed_data.sql
+	psql postgresql://root:root@localhost:5435/auction_db -f sql/002_seed_data.sql
 	@echo Sample data loaded
