@@ -6,9 +6,10 @@ bin/
 *.out
 .DS_Store
 
-# IDE
+# IDE / herramientas
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
