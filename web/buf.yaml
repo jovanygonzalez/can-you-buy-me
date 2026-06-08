@@ -1,0 +1,11 @@
+version: v2
+# El contrato .proto vive en la raíz del monorepo (compartido con Go y Flutter).
+# Este módulo apunta allí para que `buf generate` lea la misma fuente de verdad.
+modules:
+  - path: ../proto
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

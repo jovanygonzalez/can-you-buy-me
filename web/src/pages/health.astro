@@ -1,0 +1,15 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import HealthCheck from "@/components/HealthCheck.tsx";
+---
+
+<Layout>
+  <main class="mx-auto max-w-md space-y-4 p-8">
+    <h1 class="text-2xl font-semibold">Health check (gRPC-Web)</h1>
+    <p class="text-sm text-muted-foreground">
+      Prueba de la Fase 1: el cliente Astro habla con el backend Go por
+      gRPC-Web. <code>client:load</code> hidrata la isla solo en el navegador.
+    </p>
+    <HealthCheck client:load />
+  </main>
+</Layout>

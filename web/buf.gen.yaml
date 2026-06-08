@@ -1,0 +1,12 @@
+version: v2
+# Lee TODOS los .proto del monorepo y genera stubs TS en src/lib/grpc/gen.
+# Añadir un nuevo servicio = añadir un .proto y re-correr `npm run proto:gen`.
+inputs:
+  - directory: ../proto
+plugins:
+  # Un solo plugin (Connect-ES v2): genera mensajes + descriptores de servicio.
+  # El cliente se crea en runtime con createClient(Service, transport).
+  - local: protoc-gen-es
+    out: src/lib/grpc/gen
+    opt:
+      - target=ts
