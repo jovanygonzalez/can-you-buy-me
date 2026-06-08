@@ -12,7 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The following technologies are mandated and must be used:
 
-- **Frontend:** Flutter Web (pure, no REST intermediaries for real-time)
+- **Frontend (shell):** Astro for everything that is content-heavy, form-heavy, or SEO-relevant — landing, catalog/drop pages, register/login, and Stripe SetupIntent. Ships near-zero JS, indexable, fast first load.
+- **Frontend (real-time island):** Flutter Web for the **live bid screen only**, mounted same-origin under a route (e.g. `/live`). This is the one surface where real-time WebSocket streams + complex stateful UI justify Flutter's payload.
+- **Frontend contract:** Both clients are generated from the same `proto/v1/*.proto` (TS stubs for Astro via `protoc-gen-ts`, Dart stubs for Flutter). The `.proto` is the single source of truth; models are never hand-duplicated. Session is a JWT in `localStorage`, shared same-origin between Astro and Flutter.
 - **Backend:** Go (microservices or modular monolith)
 - **Client→Server (Writes):** gRPC-Web (bids sent directly from Flutter to Go backend)
 - **Server→Client (Reads/Real-time):** WebSockets connected to NATS JetStream
@@ -22,6 +24,8 @@ The following technologies are mandated and must be used:
 - **Infrastructure:** AWS (ECS/Fargate or EC2, S3 + CloudFront, RDS, ElastiCache)
 
 **Why this stack:** Designed to handle microsecond-latency pub/sub to thousands of concurrent clients during drop events. NATS JetStream is the single source of truth for auction events and enables future Event Sourcing + CQRS evolution.
+
+**Why the hybrid frontend (Astro + Flutter):** Flutter Web is poor for SEO (canvas-rendered) and ships a 2-5 MB initial payload — bad for a consumer marketing/landing funnel in Mexico (mobile data, mid-range devices). Astro inverts both: indexable, near-zero JS. Stripe Elements/`stripe.js` is also more natural in Astro than in Flutter Web. Flutter is reserved for the one surface where it wins decisively: the real-time bidding screen. The seam runs inside the authenticated app (Stripe setup in Astro, bidding in Flutter), which is acceptable **only** because both share one origin, one `.proto` contract, and one JWT. See `docs/FRONTEND_ARCHITECTURE.md` for the concrete integration plan. The "no REST intermediaries for real-time" rule still holds: the bid path is gRPC-Web + WebSocket→NATS, never REST.
 
 ## Development Phases (In Priority Order)
 
@@ -122,13 +126,33 @@ Once the MVP validates the market:
 /migrations/                  # SQL migration files
 ```
 
-### Code Organization (Flutter Web)
+### Code Organization (Monorepo)
 ```
-/lib/main.dart               # Entry point
-/lib/screens/                # UI screens (auth, auction, bid history)
-/lib/services/               # gRPC client, WebSocket connection to NATS, Stripe integration
-/lib/models/                 # Data classes for bids, items, users
-/lib/widgets/                # Reusable UI components
+/api/                         # Go backend (gRPC-Web + NATS + Postgres)
+/app/                         # Flutter Web — LIVE BID SCREEN ONLY
+/web/                         # Astro — landing, catalog, auth, Stripe setup (the shell)
+/proto/v1/                    # Shared .proto contract (Go + TS + Dart generated from here)
+```
+
+### Code Organization (Astro shell — `/web/`)
+```
+/web/src/pages/              # File-based routes: index, /login, /register, /drops/[id], /account
+/web/src/pages/live/         # Thin host page that boots the Flutter Web build
+/web/src/lib/grpc/           # Generated TS stubs (protoc-gen-ts) + grpc-web client wrapper
+/web/src/lib/auth.ts         # JWT read/write in localStorage (same-origin handoff to Flutter)
+/web/src/lib/stripe.ts       # Stripe.js Elements + SetupIntent flow
+/web/src/components/         # Astro/island components (forms, catalog cards)
+/web/src/styles/tokens.css   # Design tokens — SINGLE source, mirrored into Flutter theme
+```
+
+### Code Organization (Flutter bid island — `/app/`)
+```
+/app/lib/main.dart           # Entry point — reads JWT from localStorage, mounts BidScreen
+/app/lib/screens/bid/        # The live auction/bid screen (the only screen)
+/app/lib/services/           # gRPC-Web bid client, WebSocket→NATS subscription
+/app/lib/models/             # Dart stubs generated from proto/v1 + view models
+/app/lib/theme/              # Theme built from the shared design tokens
+/app/lib/widgets/            # Reusable bid UI components
 ```
 
 ### Database First
@@ -178,6 +202,8 @@ docker-compose down            # Tear down local services
 3. **Don't over-engineer NATS clustering.** Single node is fine. Architect for multi-node, but don't deploy it until you need it.
 4. **Don't skip audit logging.** Every bid, registration, and payment attempt must be logged with timestamp and user ID (future compliance requirement).
 5. **Test under load early.** Build a load test harness (locust, k6, or ghz) that simulates 1000+ concurrent bids. This is not "nice to have"—it's the core validation.
+6. **Keep Flutter scoped to bidding.** If you're tempted to build login, catalog, or account screens in Flutter, stop — those belong in Astro. Every non-bid screen added to Flutter erodes the reason for the split (SEO, fast load) and doubles maintenance. Flutter owns `/live`, nothing else.
+7. **One design-token source, one origin.** Colors/typography/spacing live in `/web/src/styles/tokens.css` and are mirrored into the Flutter theme — never define them twice by hand. Serve Astro and Flutter from the **same domain** so the JWT in `localStorage` is shared without CORS or cross-subdomain cookie hacks.
 
 ## References
 
