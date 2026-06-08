@@ -2,6 +2,8 @@
 dist/
 # generated types
 .astro/
+# generated gRPC-Web stubs (run `npm run proto:gen`)
+src/lib/grpc/gen/
 
 # dependencies
 node_modules/
