@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Button } from '@/components/ui/button';
 ---
 
 <Layout title="Can You Buy Me — drops en vivo">
@@ -9,13 +10,13 @@ import Layout from '../layouts/Layout.astro';
 		</span>
 		<h1 class="font-display text-5xl font-bold tracking-tight">Can You Buy Me</h1>
 		<p class="max-w-prose text-cybm-muted">
-			Subastas en tiempo real. Astro corriendo con Tailwind v4 y los design tokens
-			del proyecto como única fuente.
+			Astro + Tailwind v4 + shadcn/ui, unificados por un solo set de design tokens.
 		</p>
-		<button
-			class="rounded-cybm bg-cybm-primary px-6 py-3 font-medium text-cybm-primary-ink transition hover:opacity-90"
-		>
-			Entrar a la subasta
-		</button>
+
+		<!-- shadcn React island, themed from the cybm tokens -->
+		<div class="flex gap-3">
+			<Button client:load size="lg">Entrar a la subasta</Button>
+			<Button client:load size="lg" variant="outline">Ver catálogo</Button>
+		</div>
 	</main>
 </Layout>
