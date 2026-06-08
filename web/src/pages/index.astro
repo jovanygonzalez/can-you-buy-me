@@ -1,17 +1,21 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Can You Buy Me — drops en vivo">
+	<main class="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-6 px-6 text-center">
+		<span class="rounded-cybm bg-cybm-accent/15 px-3 py-1 text-sm font-medium text-cybm-accent">
+			Drop en vivo · MVP
+		</span>
+		<h1 class="font-display text-5xl font-bold tracking-tight">Can You Buy Me</h1>
+		<p class="max-w-prose text-cybm-muted">
+			Subastas en tiempo real. Astro corriendo con Tailwind v4 y los design tokens
+			del proyecto como única fuente.
+		</p>
+		<button
+			class="rounded-cybm bg-cybm-primary px-6 py-3 font-medium text-cybm-primary-ink transition hover:opacity-90"
+		>
+			Entrar a la subasta
+		</button>
+	</main>
+</Layout>

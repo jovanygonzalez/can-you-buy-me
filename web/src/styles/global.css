@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Can You Buy Me — DESIGN TOKENS (single source of truth)
+   ----------------------------------------------------------------------------
+   These tokens are the ONLY place colors / type / radius are defined.
+   - Tailwind v4 reads this @theme block and emits both the utilities
+     (bg-cybm-primary, text-cybm-ink, font-display, rounded-cybm ...) and the
+     matching CSS variables (--color-cybm-primary, ...).
+   - In Phase 2 these same values are MIRRORED into the Flutter theme
+     (app/lib/theme/tokens.dart) so the /live bid screen looks like the same
+     product as the Astro shell. Never define colors/type/spacing anywhere else.
+   - When we adopt a template, fold its palette INTO this block — do not let raw
+     hex values spread across markup. (See CLAUDE.md Red Flag #7.)
+   ========================================================================== */
+
+@theme {
+  /* -- Brand / interactive ------------------------------------------------ */
+  --color-cybm-primary: #e11d48;        /* primary action (bid, CTA) */
+  --color-cybm-primary-ink: #ffffff;    /* text/icon on primary */
+  --color-cybm-accent: #f59e0b;         /* highlights, "drop live" badges */
+
+  /* -- Surfaces ----------------------------------------------------------- */
+  --color-cybm-bg: #0b0b0f;             /* page background */
+  --color-cybm-surface: #16161d;        /* cards, panels */
+  --color-cybm-border: #2a2a35;         /* hairlines, dividers */
+
+  /* -- Text --------------------------------------------------------------- */
+  --color-cybm-ink: #f5f5f7;            /* primary text */
+  --color-cybm-muted: #9b9ba6;          /* secondary text */
+
+  /* -- Feedback ----------------------------------------------------------- */
+  --color-cybm-success: #22c55e;        /* bid accepted */
+  --color-cybm-danger: #ef4444;         /* outbid / error */
+
+  /* -- Typography --------------------------------------------------------- */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* -- Shape -------------------------------------------------------------- */
+  --radius-cybm: 0.75rem;
+}
