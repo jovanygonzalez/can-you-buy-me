@@ -23,10 +23,9 @@ func AuthInterceptor(jwtManager *security.JWTManager) grpc.UnaryServerIntercepto
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		// Métodos públicos que no requieren autenticación
 		publicMethods := map[string]bool{
-			"/auth.v1.AuthService/Register": true,
-			"/auth.v1.AuthService/Login":    true,
-			"/health.v1.HealthService/Ping": true,
-			"/health.v1.HealthService/Check": true,
+			"/auth.v1.AuthService/LoginWithProvider": true,
+			"/health.v1.HealthService/Ping":          true,
+			"/health.v1.HealthService/Check":         true,
 		}
 
 		// Si es un método público, saltarse validación

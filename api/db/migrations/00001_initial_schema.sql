@@ -6,15 +6,17 @@
 -- =====================================================
 
 -- =====================================================
--- USERS TABLE
+-- USERS TABLE (perfil canónico — autenticación SOLO vía proveedores OAuth)
+-- Un humano = una fila = un Stripe Customer. Sin contraseñas.
+-- Los métodos de login (Google, Apple, ...) viven en user_identities.
 -- =====================================================
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
 
-  -- Autenticación
-  email VARCHAR(255) NOT NULL UNIQUE,
+  -- Identidad / perfil
+  email VARCHAR(255) NOT NULL UNIQUE,   -- correo primario verificado (canónico)
   name VARCHAR(255) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  avatar_url VARCHAR(500),              -- foto del proveedor (opcional)
 
   -- Stripe Payment Integration
   stripe_customer_id VARCHAR(255),
@@ -24,12 +26,44 @@ CREATE TABLE IF NOT EXISTS users (
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login_at TIMESTAMP,
   is_active BOOLEAN DEFAULT TRUE
 );
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_stripe_customer_id ON users(stripe_customer_id);
 CREATE INDEX idx_users_has_active_payment ON users(has_active_payment_method);
+
+-- =====================================================
+-- USER_IDENTITIES TABLE (1 usuario ↔ N proveedores OAuth)
+-- Cada fila vincula una cuenta de proveedor (Google, Apple, ...) a un usuario.
+-- Permite que la misma persona inicie sesión con varios proveedores
+-- sin crear cuentas duplicadas.
+-- =====================================================
+CREATE TABLE IF NOT EXISTS user_identities (
+  id SERIAL PRIMARY KEY,
+
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+  -- Proveedor de identidad: 'google' | 'apple' | ...
+  provider VARCHAR(50) NOT NULL,
+  -- 'sub' del proveedor: identificador estable y único DENTRO de ese proveedor.
+  -- Nunca cambia aunque el usuario cambie su correo.
+  provider_user_id VARCHAR(255) NOT NULL,
+  -- Correo tal como lo reportó el proveedor en este login.
+  -- Puede diferir del email canónico (ej. relay 'Hide My Email' de Apple).
+  email_at_provider VARCHAR(255),
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_login_at TIMESTAMP,
+
+  -- Una cuenta de proveedor pertenece a un único usuario.
+  UNIQUE (provider, provider_user_id)
+);
+
+CREATE INDEX idx_user_identities_user_id ON user_identities(user_id);
+CREATE INDEX idx_user_identities_provider ON user_identities(provider);
 
 -- =====================================================
 -- AUCTIONS TABLE (Productos en Subasta)
@@ -172,5 +206,6 @@ DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS audit_log;
 DROP TABLE IF EXISTS bids;
 DROP TABLE IF EXISTS auctions;
+DROP TABLE IF EXISTS user_identities;
 DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

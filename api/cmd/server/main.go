@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	db "github.com/can-you-buy-me/db/sqlc"
+	"github.com/can-you-buy-me/internal/auth"
 	"github.com/can-you-buy-me/internal/database"
 	grpcpkg "github.com/can-you-buy-me/internal/grpc"
 	"github.com/can-you-buy-me/internal/handlers"
@@ -153,8 +154,17 @@ func main() {
 	healthHandler := handlers.NewHealthHandler()
 	healthpb.RegisterHealthServiceServer(grpcServer, healthHandler)
 
+	// Construir los verificadores de proveedores OAuth (Google hoy; Apple después).
+	verifiers := map[string]auth.ProviderVerifier{}
+	if googleClientID := getEnvOrDefault("GOOGLE_CLIENT_ID", ""); googleClientID != "" {
+		verifiers["google"] = auth.NewGoogleVerifier(googleClientID)
+		slog.Info("Google OAuth verifier enabled")
+	} else {
+		slog.Warn("GOOGLE_CLIENT_ID not set — Google login disabled")
+	}
+
 	// Registrar AuthService
-	authHandler := handlers.NewAuthHandler(queries, jwtManager)
+	authHandler := handlers.NewAuthHandler(dbConn.Pool, queries, jwtManager, verifiers)
 	authpb.RegisterAuthServiceServer(grpcServer, authHandler)
 	slog.Info("Auth service registered")
 

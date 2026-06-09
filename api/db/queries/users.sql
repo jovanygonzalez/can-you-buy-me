@@ -7,9 +7,48 @@ SELECT * FROM users
 WHERE email = $1;
 
 -- name: CreateUser :one
-INSERT INTO users (email, name, password_hash, created_at, updated_at)
+INSERT INTO users (email, name, avatar_url, created_at, updated_at)
 VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 RETURNING *;
+
+-- name: UpdateUserLastLogin :exec
+UPDATE users
+SET last_login_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+WHERE id = $1;
+
+-- =====================================================
+-- IDENTIDADES OAuth (Google, Apple, ...)
+-- =====================================================
+
+-- name: GetUserByProviderID :one
+-- El lookup principal del login OAuth: dado (provider, sub), devuelve el usuario.
+SELECT u.* FROM users u
+JOIN user_identities i ON i.user_id = u.id
+WHERE i.provider = $1 AND i.provider_user_id = $2;
+
+-- name: GetIdentity :one
+SELECT * FROM user_identities
+WHERE provider = $1 AND provider_user_id = $2;
+
+-- name: ListIdentitiesByUser :many
+SELECT * FROM user_identities
+WHERE user_id = $1
+ORDER BY created_at;
+
+-- name: CreateUserIdentity :one
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+
+-- name: TouchIdentityLastLogin :exec
+UPDATE user_identities
+SET last_login_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+WHERE provider = $1 AND provider_user_id = $2;
+
+-- name: DeleteUserIdentity :exec
+-- Para "desvincular" un proveedor de una cuenta.
+DELETE FROM user_identities
+WHERE user_id = $1 AND provider = $2;
 
 -- name: UpdateUserStripeCustomer :one
 UPDATE users

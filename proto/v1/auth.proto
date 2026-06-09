@@ -4,30 +4,21 @@ package auth.v1;
 
 option go_package = "github.com/can-you-buy-me/pkg/gen/auth/v1";
 
+// AuthService: autenticación exclusivamente vía proveedores OAuth/OIDC.
+// No hay registro ni login con contraseña: el cliente obtiene un id_token
+// del proveedor (Google, Apple, ...) y lo intercambia aquí por un JWT propio.
 service AuthService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc LoginWithProvider(LoginWithProviderRequest) returns (LoginResponse);
 }
 
-message RegisterRequest {
-  string email = 1;
-  string name = 2;
-  string password = 3;
-}
-
-message RegisterResponse {
-  int32 user_id = 1;
-  string email = 2;
-  string message = 3;
-}
-
-message LoginRequest {
-  string email = 1;
-  string password = 2;
+message LoginWithProviderRequest {
+  string provider = 1;  // "google" | "apple"
+  string id_token = 2;  // OIDC ID token emitido por el proveedor
 }
 
 message LoginResponse {
   string jwt_token = 1;
   int32 user_id = 2;
   string email = 3;
+  bool is_new_user = 4;  // true si se creó un usuario nuevo en este login
 }

@@ -10,83 +10,33 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file v1/auth.proto.
  */
 export const file_v1_auth: GenFile = /*@__PURE__*/
-  fileDesc("Cg12MS9hdXRoLnByb3RvEgdhdXRoLnYxIkAKD1JlZ2lzdGVyUmVxdWVzdBINCgVlbWFpbBgBIAEoCRIMCgRuYW1lGAIgASgJEhAKCHBhc3N3b3JkGAMgASgJIkMKEFJlZ2lzdGVyUmVzcG9uc2USDwoHdXNlcl9pZBgBIAEoBRINCgVlbWFpbBgCIAEoCRIPCgdtZXNzYWdlGAMgASgJIi8KDExvZ2luUmVxdWVzdBINCgVlbWFpbBgBIAEoCRIQCghwYXNzd29yZBgCIAEoCSJCCg1Mb2dpblJlc3BvbnNlEhEKCWp3dF90b2tlbhgBIAEoCRIPCgd1c2VyX2lkGAIgASgFEg0KBWVtYWlsGAMgASgJMoYBCgtBdXRoU2VydmljZRI/CghSZWdpc3RlchIYLmF1dGgudjEuUmVnaXN0ZXJSZXF1ZXN0GhkuYXV0aC52MS5SZWdpc3RlclJlc3BvbnNlEjYKBUxvZ2luEhUuYXV0aC52MS5Mb2dpblJlcXVlc3QaFi5hdXRoLnYxLkxvZ2luUmVzcG9uc2VCK1opZ2l0aHViLmNvbS9jYW4teW91LWJ1eS1tZS9wa2cvZ2VuL2F1dGgvdjFiBnByb3RvMw");
+  fileDesc("Cg12MS9hdXRoLnByb3RvEgdhdXRoLnYxIj4KGExvZ2luV2l0aFByb3ZpZGVyUmVxdWVzdBIQCghwcm92aWRlchgBIAEoCRIQCghpZF90b2tlbhgCIAEoCSJXCg1Mb2dpblJlc3BvbnNlEhEKCWp3dF90b2tlbhgBIAEoCRIPCgd1c2VyX2lkGAIgASgFEg0KBWVtYWlsGAMgASgJEhMKC2lzX25ld191c2VyGAQgASgIMl0KC0F1dGhTZXJ2aWNlEk4KEUxvZ2luV2l0aFByb3ZpZGVyEiEuYXV0aC52MS5Mb2dpbldpdGhQcm92aWRlclJlcXVlc3QaFi5hdXRoLnYxLkxvZ2luUmVzcG9uc2VCK1opZ2l0aHViLmNvbS9jYW4teW91LWJ1eS1tZS9wa2cvZ2VuL2F1dGgvdjFiBnByb3RvMw");
 
 /**
- * @generated from message auth.v1.RegisterRequest
+ * @generated from message auth.v1.LoginWithProviderRequest
  */
-export type RegisterRequest = Message<"auth.v1.RegisterRequest"> & {
+export type LoginWithProviderRequest = Message<"auth.v1.LoginWithProviderRequest"> & {
   /**
-   * @generated from field: string email = 1;
+   * "google" | "apple"
+   *
+   * @generated from field: string provider = 1;
    */
-  email: string;
+  provider: string;
 
   /**
-   * @generated from field: string name = 2;
+   * OIDC ID token emitido por el proveedor
+   *
+   * @generated from field: string id_token = 2;
    */
-  name: string;
-
-  /**
-   * @generated from field: string password = 3;
-   */
-  password: string;
+  idToken: string;
 };
 
 /**
- * Describes the message auth.v1.RegisterRequest.
- * Use `create(RegisterRequestSchema)` to create a new message.
+ * Describes the message auth.v1.LoginWithProviderRequest.
+ * Use `create(LoginWithProviderRequestSchema)` to create a new message.
  */
-export const RegisterRequestSchema: GenMessage<RegisterRequest> = /*@__PURE__*/
+export const LoginWithProviderRequestSchema: GenMessage<LoginWithProviderRequest> = /*@__PURE__*/
   messageDesc(file_v1_auth, 0);
-
-/**
- * @generated from message auth.v1.RegisterResponse
- */
-export type RegisterResponse = Message<"auth.v1.RegisterResponse"> & {
-  /**
-   * @generated from field: int32 user_id = 1;
-   */
-  userId: number;
-
-  /**
-   * @generated from field: string email = 2;
-   */
-  email: string;
-
-  /**
-   * @generated from field: string message = 3;
-   */
-  message: string;
-};
-
-/**
- * Describes the message auth.v1.RegisterResponse.
- * Use `create(RegisterResponseSchema)` to create a new message.
- */
-export const RegisterResponseSchema: GenMessage<RegisterResponse> = /*@__PURE__*/
-  messageDesc(file_v1_auth, 1);
-
-/**
- * @generated from message auth.v1.LoginRequest
- */
-export type LoginRequest = Message<"auth.v1.LoginRequest"> & {
-  /**
-   * @generated from field: string email = 1;
-   */
-  email: string;
-
-  /**
-   * @generated from field: string password = 2;
-   */
-  password: string;
-};
-
-/**
- * Describes the message auth.v1.LoginRequest.
- * Use `create(LoginRequestSchema)` to create a new message.
- */
-export const LoginRequestSchema: GenMessage<LoginRequest> = /*@__PURE__*/
-  messageDesc(file_v1_auth, 2);
 
 /**
  * @generated from message auth.v1.LoginResponse
@@ -106,6 +56,13 @@ export type LoginResponse = Message<"auth.v1.LoginResponse"> & {
    * @generated from field: string email = 3;
    */
   email: string;
+
+  /**
+   * true si se creó un usuario nuevo en este login
+   *
+   * @generated from field: bool is_new_user = 4;
+   */
+  isNewUser: boolean;
 };
 
 /**
@@ -113,26 +70,22 @@ export type LoginResponse = Message<"auth.v1.LoginResponse"> & {
  * Use `create(LoginResponseSchema)` to create a new message.
  */
 export const LoginResponseSchema: GenMessage<LoginResponse> = /*@__PURE__*/
-  messageDesc(file_v1_auth, 3);
+  messageDesc(file_v1_auth, 1);
 
 /**
+ * AuthService: autenticación exclusivamente vía proveedores OAuth/OIDC.
+ * No hay registro ni login con contraseña: el cliente obtiene un id_token
+ * del proveedor (Google, Apple, ...) y lo intercambia aquí por un JWT propio.
+ *
  * @generated from service auth.v1.AuthService
  */
 export const AuthService: GenService<{
   /**
-   * @generated from rpc auth.v1.AuthService.Register
+   * @generated from rpc auth.v1.AuthService.LoginWithProvider
    */
-  register: {
+  loginWithProvider: {
     methodKind: "unary";
-    input: typeof RegisterRequestSchema;
-    output: typeof RegisterResponseSchema;
-  },
-  /**
-   * @generated from rpc auth.v1.AuthService.Login
-   */
-  login: {
-    methodKind: "unary";
-    input: typeof LoginRequestSchema;
+    input: typeof LoginWithProviderRequestSchema;
     output: typeof LoginResponseSchema;
   },
 }> = /*@__PURE__*/

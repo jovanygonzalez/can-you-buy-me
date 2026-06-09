@@ -6,16 +6,31 @@
 -- Se corre con goose -no-versioning (no cuenta como migración de schema).
 -- Es re-ejecutable: limpia y recarga.
 
-TRUNCATE payments, bids, audit_log, auctions, users RESTART IDENTITY CASCADE;
+TRUNCATE payments, bids, audit_log, auctions, user_identities, users RESTART IDENTITY CASCADE;
 
--- USERS (password_hash es un bcrypt de ejemplo de 'password123')
-INSERT INTO users (email, name, password_hash, stripe_customer_id, has_active_payment_method, is_active)
+-- USERS (sin contraseña: autenticación SOLO vía proveedores OAuth)
+INSERT INTO users (email, name, stripe_customer_id, has_active_payment_method, is_active)
 VALUES
-    ('maria.gonzalez@example.com', 'María González', '$2a$10$rZ8kHp9pXqZ8kHp9pXqZ8e', 'cus_example_maria', TRUE,  TRUE),
-    ('juan.perez@example.com',     'Juan Pérez',     '$2a$10$rZ8kHp9pXqZ8kHp9pXqZ8e', 'cus_example_juan',  TRUE,  TRUE),
-    ('ana.martinez@example.com',   'Ana Martínez',   '$2a$10$rZ8kHp9pXqZ8kHp9pXqZ8e', 'cus_example_ana',   TRUE,  TRUE),
-    ('carlos.lopez@example.com',   'Carlos López',   '$2a$10$rZ8kHp9pXqZ8kHp9pXqZ8e', NULL,                FALSE, TRUE),
-    ('laura.sanchez@example.com',  'Laura Sánchez',  '$2a$10$rZ8kHp9pXqZ8kHp9pXqZ8e', NULL,                FALSE, TRUE);
+    ('maria.gonzalez@example.com', 'María González', 'cus_example_maria', TRUE,  TRUE),
+    ('juan.perez@example.com',     'Juan Pérez',     'cus_example_juan',  TRUE,  TRUE),
+    ('ana.martinez@example.com',   'Ana Martínez',   'cus_example_ana',   TRUE,  TRUE),
+    ('carlos.lopez@example.com',   'Carlos López',   NULL,                FALSE, TRUE),
+    ('laura.sanchez@example.com',  'Laura Sánchez',  NULL,                FALSE, TRUE);
+
+-- USER_IDENTITIES (cómo inicia sesión cada usuario; provider_user_id = 'sub' de ejemplo)
+-- Ana tiene DOS identidades vinculadas (Google + Apple) al mismo usuario.
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'google', 'google-sub-maria', u.email FROM users u WHERE u.email = 'maria.gonzalez@example.com';
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'google', 'google-sub-juan',  u.email FROM users u WHERE u.email = 'juan.perez@example.com';
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'google', 'google-sub-ana',   u.email FROM users u WHERE u.email = 'ana.martinez@example.com';
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'apple',  'apple-sub-ana',    'relay-ana@privaterelay.appleid.com' FROM users u WHERE u.email = 'ana.martinez@example.com';
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'apple',  'apple-sub-carlos', u.email FROM users u WHERE u.email = 'carlos.lopez@example.com';
+INSERT INTO user_identities (user_id, provider, provider_user_id, email_at_provider)
+SELECT u.id, 'google', 'google-sub-laura', u.email FROM users u WHERE u.email = 'laura.sanchez@example.com';
 
 -- AUCTIONS (precios en pesos, DECIMAL). current_highest_bid NULL = sin pujas aún.
 INSERT INTO auctions (title, description, category, base_price, current_highest_bid, image_urls, scheduled_at, started_at, status, condition)
@@ -66,5 +81,5 @@ WHERE a.highest_bidder_id IS NOT NULL;
 
 -- +goose Down
 -- +goose StatementBegin
-TRUNCATE payments, bids, audit_log, auctions, users RESTART IDENTITY CASCADE;
+TRUNCATE payments, bids, audit_log, auctions, user_identities, users RESTART IDENTITY CASCADE;
 -- +goose StatementEnd

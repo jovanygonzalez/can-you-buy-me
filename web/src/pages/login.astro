@@ -1,0 +1,65 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import GoogleLoginButton from "@/components/google-login-button.tsx";
+---
+
+<Layout title="Inicia sesión — Can You Buy Me">
+  <!-- Layout estilo shadcn "login-02": dos columnas; el panel de marca queda a
+       la derecha y se oculta en móvil (lg:block). -->
+  <div class="grid min-h-svh lg:grid-cols-2">
+    <!-- Columna izquierda: logo + acción de login -->
+    <div class="flex flex-col gap-4 p-6 md:p-10">
+      <div class="flex justify-center gap-2 md:justify-start">
+        <a href="/" class="flex items-center gap-2 font-medium">
+          <span
+            class="flex size-7 items-center justify-center rounded-cybm bg-cybm-primary text-cybm-primary-ink"
+          >
+            $
+          </span>
+          Can You Buy Me
+        </a>
+      </div>
+
+      <div class="flex flex-1 items-center justify-center">
+        <div class="flex w-full max-w-xs flex-col gap-6">
+          <div class="flex flex-col items-center gap-1 text-center">
+            <h1 class="text-2xl font-bold">Inicia sesión</h1>
+            <p class="text-sm text-balance text-cybm-muted">
+              Continúa con tu proveedor para entrar a las subastas.
+            </p>
+          </div>
+
+          <GoogleLoginButton client:load />
+
+          <p class="px-2 text-center text-xs text-cybm-muted">
+            Al continuar aceptas los Términos y la Política de Privacidad.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna derecha: panel de marca.
+         Para usar una imagen real, reemplaza este <div> por:
+         <img src="/tu-imagen.jpg" alt="" class="absolute inset-0 h-full w-full object-cover" />
+         dentro de un contenedor `relative`. -->
+    <div
+      class="relative hidden overflow-hidden lg:block"
+      style="background: radial-gradient(120% 120% at 80% 20%, #e11d48 0%, #16161d 55%, #0b0b0f 100%);"
+    >
+      <div class="absolute inset-0 flex flex-col justify-end gap-3 p-12">
+        <p
+          class="text-sm font-medium tracking-wide text-cybm-accent uppercase"
+        >
+          Drops en vivo
+        </p>
+        <h2 class="max-w-md text-3xl font-bold text-balance text-cybm-ink">
+          Puja en tiempo real por piezas de edición limitada.
+        </h2>
+        <p class="max-w-md text-sm text-cybm-ink/70">
+          Miles de personas, una sola oportunidad. Conecta tu cuenta y prepárate
+          para el próximo drop.
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>
